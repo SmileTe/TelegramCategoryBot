@@ -1,0 +1,2211 @@
+Index: src/main/java/com/homework/model/Command.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/model/Command.java b/src/main/java/com/homework/model/Command.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/model/Command.java	
+@@ -0,0 +1,27 @@
++package com.homework.model;
++
++public enum Command {
++    viewTree("/viewTree - Вывести дерево категорий"),
++    addElement("/addElement <родительский элемент>/<дочерний элемент> - Добавить элемент"),
++    removeElement("/removeElement <название элемента> - Удалить элемент"),
++    help("/help - Вывести список команд"),
++    download("/download - Скачать Excel документ с деревом категорий"),
++    upload("/upload - Принять Excel документ с деревом категорий");
++
++    private final String title;
++
++    Command(String title) {
++        this.title = title;
++    }
++
++    public String getTitle() {
++        return title;
++    }
++
++    @Override
++    public String toString() {
++        return  title ;
++    }
++}
++
++
+Index: src/main/java/com/homework/model/Category.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/model/Category.java b/src/main/java/com/homework/model/Category.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/model/Category.java	
+@@ -0,0 +1,68 @@
++package com.homework.model;
++
++
++
++import javax.persistence.*;
++import javax.validation.constraints.NotNull;
++import java.util.Objects;
++
++@Entity
++@Table(name = "category")
++public class Category {
++@Id
++@Column(name = "title")
++@NotNull
++    private String name;
++@Column(name = "parent_title")
++    private String parentName;
++
++    public Category() {
++    }
++
++    public Category(String name) {
++        this.name = name;
++    }
++
++    public Category(String name, String parentName) {
++
++        this.name = name;
++        this.parentName = parentName;
++    }
++
++    public String getName() {
++        return name;
++    }
++
++    public void setName(String name) {
++        this.name = name;
++    }
++
++    public String getParentName() {
++        return parentName;
++    }
++
++    public void setParentName(String parentName) {
++        this.parentName = parentName;
++    }
++
++    @Override
++    public boolean equals(Object o) {
++        if (this == o) return true;
++        if (o == null || getClass() != o.getClass()) return false;
++        Category category = (Category) o;
++        return Objects.equals(name, category.name) && Objects.equals(parentName, category.parentName);
++    }
++
++    @Override
++    public int hashCode() {
++        return Objects.hash(name, parentName);
++    }
++
++    @Override
++    public String toString() {
++        return "Category{" +
++                "name='" + name + '\'' +
++                ", parentName='" + parentName + '\'' +
++                '}';
++    }
++}
+Index: src/main/java/com/homework/model/Document.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/model/Document.java b/src/main/java/com/homework/model/Document.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/model/Document.java	
+@@ -0,0 +1,100 @@
++package com.homework.model;
++
++import com.fasterxml.jackson.annotation.JsonIgnore;
++
++import javax.persistence.*;
++import java.util.Arrays;
++import java.util.Objects;
++
++@Entity
++@Table(name = "document")
++public class Document {
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Long id;
++    @Column(name = "file_path", nullable = false)
++    private String filePath;
++    @Column(name = "file_size", nullable = false)
++
++    private long fileSize;
++    @Column(name = "media_type", nullable = false)
++    private String mediaType;
++    @JsonIgnore
++    private byte[] data;
++
++    public Document() {
++    }
++
++    public Document(String filePath, long fileSize, String mediaType, byte[] data) {
++        this.filePath = filePath;
++        this.fileSize = fileSize;
++        this.mediaType = mediaType;
++        this.data = data;
++    }
++
++    public Long getId() {
++        return id;
++    }
++
++    public void setId(Long id) {
++        this.id = id;
++    }
++
++    public String getFilePath() {
++        return filePath;
++    }
++
++    public void setFilePath(String filePath) {
++        this.filePath = filePath;
++    }
++
++    public long getFileSize() {
++        return fileSize;
++    }
++
++    public void setFileSize(long fileSize) {
++        this.fileSize = fileSize;
++    }
++
++    public String getMediaType() {
++        return mediaType;
++    }
++
++    public void setMediaType(String mediaType) {
++        this.mediaType = mediaType;
++    }
++
++    public byte[] getData() {
++        return data;
++    }
++
++    public void setData(byte[] data) {
++       this.data = data;
++    }
++
++    @Override
++    public boolean equals(Object o) {
++        if (this == o) return true;
++        if (o == null || getClass() != o.getClass()) return false;
++        Document document = (Document) o;
++        return fileSize == document.fileSize && Objects.equals(id, document.id) && Objects.equals(filePath, document.filePath) && Objects.equals(mediaType, document.mediaType) && Arrays.equals(data, document.data);
++    }
++
++    @Override
++    public int hashCode() {
++        int result = Objects.hash(id, filePath, fileSize, mediaType);
++        result = 31 * result + Arrays.hashCode(data);
++        return result;
++    }
++
++    @Override
++    public String toString() {
++        return "Document{" +
++                "id=" + id +
++                ", filePath='" + filePath + '\'' +
++                ", fileSize=" + fileSize +
++                ", mediaType='" + mediaType + '\'' +
++                ", data=" + Arrays.toString(data) +
++                '}';
++    }
++}
+Index: src/main/java/com/homework/service/CategoryService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/service/CategoryService.java b/src/main/java/com/homework/service/CategoryService.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/service/CategoryService.java	
+@@ -0,0 +1,72 @@
++package com.homework.service;
++
++import com.homework.model.Category;
++import com.homework.repository.CategoryRepository;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.stereotype.Service;
++import org.springframework.web.bind.annotation.GetMapping;
++
++import javax.transaction.Transactional;
++import java.util.Collection;
++import java.util.Iterator;
++import java.util.List;
++
++@Service
++@Transactional
++public class CategoryService {
++
++    private final Logger logger = LoggerFactory.getLogger(CategoryService.class);
++
++    private final CategoryRepository categoryRepository;
++
++    public CategoryService(CategoryRepository categoryRepository) {
++        this.categoryRepository = categoryRepository;
++    }
++
++    public Category addElement(String name) {
++        Category category = new Category(name);
++        logger.debug("Creating a new category:{}", category);
++        final var save = categoryRepository.save(category);
++        logger.debug("A new category{}", save);
++        return save;
++    }
++    public Category addElement(String name, String parentName) {
++
++        Category category = new Category(name, parentName);
++        logger.debug("Creating a new category:{}", category);
++        final var save = categoryRepository.save(category);
++        logger.debug("A new category{}", save);
++        return save;
++    }
++
++    public Category editElement(Category category) {
++        logger.debug("Edit category:{}", category);
++        if (categoryRepository.findById(category.getName()).isPresent()) {
++            final var category1 = categoryRepository.save(category);
++            logger.debug("Category (edit) is{}", category1);
++            return category1;
++        } else {
++            logger.debug("No category found with id {}", category.getName());
++            return null;
++        }
++    }
++
++    public void removeElement(String name) {
++        logger.debug("Delete category:{}", name);
++        List<Category> categories = categoryRepository.getViewTreeById(name);
++        Iterator<Category> categoryIterator = categories.iterator();
++        while(categoryIterator.hasNext()) {
++            Category nextCategory = categoryIterator.next();
++            categoryRepository.deleteById(nextCategory.getName());
++        }
++    }
++    @GetMapping
++    public Collection<Category> getViewTree() {
++        logger.debug("Collection all categories:{}");
++        final var all = categoryRepository.getViewTree();
++        logger.debug("All categories is{}", all);
++        return all;
++    }
++
++}
+Index: src/main/java/com/homework/service/DocumentService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/service/DocumentService.java b/src/main/java/com/homework/service/DocumentService.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/service/DocumentService.java	
+@@ -0,0 +1,38 @@
++package com.homework.service;
++
++import com.homework.model.Document;
++import com.homework.repository.CategoryRepository;
++import com.homework.repository.DocumentRepository;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.stereotype.Service;
++
++@Service
++public class DocumentService {
++    private final Logger logger = LoggerFactory.getLogger(DocumentService.class);
++
++    private final DocumentRepository documentRepository;
++
++    public DocumentService(DocumentRepository documentRepository) {
++        this.documentRepository = documentRepository;
++    }
++
++    public Document createDocument(Document document) {
++        logger.debug("Creating a new Document:{}", document);
++        final var save = documentRepository.save(document);
++        logger.debug("A new Document{}", save);
++        return save;
++    }
++
++
++    public Document createDocument(String filePath, long fileSize, String mediaType, byte[] data) {
++       Document document = new Document(filePath, fileSize, mediaType,data);
++
++        logger.debug("Creating a new Document:{}", document);
++        final var save = documentRepository.save(document);
++        logger.debug("A new Document{}", save);
++        return save;
++    }
++
++
++}
+Index: src/main/java/com/homework/App.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/App.java b/src/main/java/com/homework/App.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/App.java	
+@@ -0,0 +1,15 @@
++package com.homework;
++import org.springframework.boot.SpringApplication;
++import org.springframework.boot.autoconfigure.SpringBootApplication;
++import org.springframework.scheduling.annotation.EnableScheduling;
++
++@SpringBootApplication
++@EnableScheduling
++
++public class App 
++{
++    public static void main( String[] args )
++    {
++        SpringApplication.run(App.class, args);
++    }
++}
+Index: src/main/java/com/homework/listener/TelegramBotUpdatesListener.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/listener/TelegramBotUpdatesListener.java b/src/main/java/com/homework/listener/TelegramBotUpdatesListener.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/listener/TelegramBotUpdatesListener.java	
+@@ -0,0 +1,227 @@
++package com.homework.listener;
++
++import com.homework.model.Category;
++import com.homework.model.Command;
++import com.homework.repository.CategoryRepository;
++import com.homework.repository.DocumentRepository;
++import com.homework.service.CategoryService;
++import com.homework.service.DocumentService;
++import com.pengrad.telegrambot.TelegramBot;
++import com.pengrad.telegrambot.UpdatesListener;
++import com.pengrad.telegrambot.model.*;
++import com.pengrad.telegrambot.request.GetFile;
++import com.pengrad.telegrambot.request.SendDocument;
++import com.pengrad.telegrambot.request.SendMessage;
++import com.pengrad.telegrambot.response.GetFileResponse;
++import com.pengrad.telegrambot.response.SendResponse;
++import org.apache.poi.ss.usermodel.Row;
++import org.apache.poi.ss.usermodel.Sheet;
++import org.apache.poi.ss.usermodel.Workbook;
++import org.apache.poi.xssf.usermodel.XSSFWorkbook;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Service;
++
++import javax.annotation.PostConstruct;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.util.List;
++@Service
++public class TelegramBotUpdatesListener implements UpdatesListener {
++
++    private Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
++
++    @Autowired
++    private TelegramBot telegramBot;
++    @Autowired
++    private CategoryRepository categoryRepository;
++    @Autowired
++    private CategoryService categoryService;
++
++    @Autowired
++    private DocumentRepository documentRepository;
++    @Autowired
++    private DocumentService documentService;
++
++    @PostConstruct
++    public void init() {
++        telegramBot.setUpdatesListener(this);
++    }
++
++    public TelegramBotUpdatesListener(TelegramBot telegramBot, CategoryRepository categoryRepository, CategoryService categoryService, DocumentRepository documentRepository, DocumentService documentService) {
++        this.telegramBot = telegramBot;
++        this.categoryRepository = categoryRepository;
++        this.categoryService = categoryService;
++        this.documentRepository = documentRepository;
++        this.documentService = documentService;
++    }
++
++    @Override
++    public int process(List<Update> updates) {
++        updates.forEach(update -> {
++            logger.info("Processing update: {}", update);
++            if (update.callbackQuery() != null) {
++                return;
++            }
++          //пришел текст
++            if (update.message().text()!=null){
++                String textUpdate = update.message().text();
++                long chatIdPerson = update.message().chat().id();
++                 processCommands(textUpdate, chatIdPerson);
++            }
++            //пришел текст с документом
++            if(update.message().caption()!=null){
++                String captionUpdate = update.message().caption();
++                long chatIdPerson = update.message().chat().id();
++                try {
++                    processDocuments(captionUpdate, chatIdPerson, update.message());
++                }
++                catch (Exception e ) {
++                }
++
++            }
++        });
++        return UpdatesListener.CONFIRMED_UPDATES_ALL;
++    }
++
++    //upload - загрузка документа
++    public void processDocuments(String captionUpdate, long chatIdPerson, Message message) throws IOException {
++     if (captionUpdate.contains(Command.upload.name())) {
++         Document documentBot =  message.document();
++         GetFileResponse response = telegramBot.execute(new GetFile(documentBot.fileId()));
++         String path = telegramBot.getFullFilePath(response.file());
++         byte[] data = telegramBot.getFileContent(response.file());
++         documentService.createDocument(path,documentBot.fileSize(), documentBot.mimeType(),data );
++        }
++    }
++
++    public void processCommands(String textUpdate, long chatIdPerson) {
++        //команда addElement
++        if (textUpdate.contains(Command.addElement.name())) {
++            addElement(textUpdate, chatIdPerson);
++        }
++        //команда viewTree
++        else if (textUpdate.contains(Command.viewTree.name())){
++            viewTree(textUpdate, chatIdPerson);
++        }
++        //команда removeElement
++        else if(textUpdate.contains(Command.removeElement.name())){
++            removeElement(textUpdate, chatIdPerson);
++          //команда help
++        }
++        else if (textUpdate.contains(Command.help.name())) {
++            help(textUpdate, chatIdPerson);
++        }
++        else if (textUpdate.contains(Command.download.name())) {
++            try {
++                downloadExcel(chatIdPerson);
++                }
++            catch (Exception e){
++
++            }
++        }
++    }
++
++
++    public void addElement(String textUpdate,  long chatIdPerson){
++        String text = textUpdate.replace("/" + Command.addElement.name() + " ", "");
++        String[] array = text.split("/");
++        if (array.length == 2) {
++            Category parent = categoryRepository.getByName(array[0]);
++            if(parent ==null){
++                sendMessage(chatIdPerson, "Нет элемента  с именем - " +array[0] );
++                return;
++            }
++            categoryService.addElement(array[1], array[0]);
++        } else if (array.length == 1) {
++            categoryService.addElement(array[0]);
++        }
++    }
++
++    public void viewTree(String textUpdate,  long chatIdPerson){
++        List<Category> categories = categoryRepository.getViewTree();
++        StringBuffer stringBuffer = new StringBuffer();
++        StringBuffer text = new StringBuffer();
++        for (Category category:
++                categories) {
++            if(category.getParentName()==null){
++                text = new StringBuffer();
++            }
++            stringBuffer.append(text + category.getName());
++            stringBuffer.append("\n");
++            text.append(" ");
++        }
++        sendMessage(chatIdPerson, stringBuffer.toString());
++    }
++
++    public void removeElement(String textUpdate,  long chatIdPerson){
++        String text = textUpdate.replace("/" + Command.removeElement.name() + " ", "");
++
++
++        Category element = categoryRepository.getByName(text);
++        if(element == null){
++            sendMessage(chatIdPerson, "Нет элемента  с именем - " + text);
++            return;
++        }
++        categoryService.removeElement(text);
++    }
++
++
++    public void help(String textUpdate,  long chatIdPerson){
++        Command[] commands = Command.values();
++        StringBuffer stringBuffer = new StringBuffer();
++        for (Command command :
++                commands) {
++            stringBuffer.append(command.toString() + "\n");
++        }
++        sendMessage(chatIdPerson, stringBuffer.toString());
++    }
++
++    public void downloadExcel( long chatIdPerson) throws IOException {
++
++        Workbook wb = new XSSFWorkbook();
++        Sheet sheet = wb.createSheet("Дерево категорий");
++
++        List<Category> categories = categoryRepository.getViewTree();
++
++        int rowCount = 0;
++        Row row = sheet.createRow(rowCount);
++        int cellCounter = 0;
++        int num = 0;
++        for (Category category:
++                categories) {
++            if( num!=0 && category.getParentName()==null){
++                rowCount ++;
++                 row = sheet.createRow(rowCount);
++                cellCounter = 0;
++            }
++            row.createCell(cellCounter).setCellValue(category.getName());
++            cellCounter++;
++            num++;
++        }
++
++        java.io.File file = java.io.File.createTempFile("example", ".xlsx");
++        try (FileOutputStream fos = new FileOutputStream(file)) {
++            wb.write(fos);
++        }
++        SendDocument sendDocument = new SendDocument(chatIdPerson,file);
++        try {
++            SendResponse execute = telegramBot.execute(sendDocument);
++        } catch (Exception e) {
++        }
++    }
++
++    public String getFileLink(String fileId) {
++        GetFile getFile = new GetFile(fileId);
++        GetFileResponse fileResponse = telegramBot.execute(getFile);
++        File file = fileResponse.file();
++        return telegramBot.getFullFilePath(file);
++    }
++
++    public void sendMessage(long chatId, String text) {
++        SendMessage message = new SendMessage(chatId, text);
++        telegramBot.execute(message);
++    }
++
++}
+Index: src/main/java/com/homework/controller/CategoryController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/controller/CategoryController.java b/src/main/java/com/homework/controller/CategoryController.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/controller/CategoryController.java	
+@@ -0,0 +1,72 @@
++package com.homework.controller;
++
++import com.homework.model.Category;
++import com.homework.service.CategoryService;
++import io.swagger.v3.oas.annotations.Operation;
++import io.swagger.v3.oas.annotations.Parameter;
++import io.swagger.v3.oas.annotations.responses.ApiResponse;
++import org.springframework.http.ResponseEntity;
++import org.springframework.web.bind.annotation.*;
++
++@RestController
++@RequestMapping("categories")
++public class CategoryController {
++    private final CategoryService categoryService;
++
++    public CategoryController(CategoryService categoryService) {
++        this.categoryService = categoryService;
++    }
++    @Operation(summary = "Создать новую категорию",
++            responses = {@ApiResponse(responseCode = "200", description = "Created"),
++                    @ApiResponse(responseCode = "404", description = "Not Found"),
++                    @ApiResponse(responseCode = "400", description = "Bad Request")
++            },
++            tags = "Categories")
++
++    @PostMapping("{name}/{parent_name}") //POST http://localhost:8080/categories
++    public Category addElement(@PathVariable String name, @RequestParam(value = "parent_name",  required = false, defaultValue = "") String parentName) {
++    if(parentName.isBlank()){
++        return categoryService.addElement(name);
++    }
++        return categoryService.addElement(name, parentName);
++    }
++    @Operation(summary = "Изменить существующую категорию",
++            responses = {@ApiResponse(responseCode = "200", description = "Created"),
++                    @ApiResponse(responseCode = "404", description = "Not Found"),
++                    @ApiResponse(responseCode = "400", description = "Bad Request")
++
++            },
++            tags = "Categories")
++
++    @PatchMapping //PUT http://localhost:8080/categories
++    public Category editElement(@RequestBody Category category) {
++        return categoryService.editElement(category);
++    }
++
++    @Operation(summary = "Удалить существующую категорию",
++            responses = {@ApiResponse(responseCode = "200", description = "Created"),
++                    @ApiResponse(responseCode = "404", description = "Not Found"),
++                    @ApiResponse(responseCode = "400", description = "Bad Request")
++            },
++            tags = "Categories")
++    @DeleteMapping("{name}") //DELETE http://localhost:8080/categories/name
++    public ResponseEntity<Void> removeElement(@PathVariable String name) {
++        categoryService.removeElement(name);
++        return ResponseEntity.ok().build();
++    }
++
++    @Operation(summary = "Получить список категорий",
++            responses = {@ApiResponse(responseCode = "200", description = "Done"),
++                    @ApiResponse(responseCode = "404", description = "Not Found"),
++                    @ApiResponse(responseCode = "400", description = "Bad Request")
++            },
++            tags = "Categories")
++    @GetMapping //GET http://localhost:8080/categories
++    public ResponseEntity<?> viewTree() {
++            return ResponseEntity.ok(categoryService.getViewTree());
++    }
++
++
++
++
++}
+Index: src/main/java/com/homework/controller/DocumentController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/controller/DocumentController.java b/src/main/java/com/homework/controller/DocumentController.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/controller/DocumentController.java	
+@@ -0,0 +1,32 @@
++package com.homework.controller;
++
++import com.homework.model.Document;
++import com.homework.service.DocumentService;
++import io.swagger.v3.oas.annotations.Operation;
++import io.swagger.v3.oas.annotations.Parameter;
++import io.swagger.v3.oas.annotations.responses.ApiResponse;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.RequestBody;
++import org.springframework.web.bind.annotation.RequestMapping;
++import org.springframework.web.bind.annotation.RestController;
++
++@RestController
++@RequestMapping("documents")
++public class DocumentController {
++private final DocumentService documentService;
++
++    public DocumentController(DocumentService documentService) {
++        this.documentService = documentService;
++    }
++
++    @Operation(summary = "Создать новый документ",
++            responses = {@ApiResponse(responseCode = "200", description = "Created"),
++                    @ApiResponse(responseCode = "404", description = "Not Found"),
++                    @ApiResponse(responseCode = "400", description = "Bad Request")
++            },
++            tags = "Documents")
++    @PostMapping //POST http://localhost:8080/document
++    public Document createDocument( @RequestBody Document document) {
++        return documentService.createDocument(document);
++    }
++}
+Index: src/main/java/com/homework/repository/CategoryRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/repository/CategoryRepository.java b/src/main/java/com/homework/repository/CategoryRepository.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/repository/CategoryRepository.java	
+@@ -0,0 +1,20 @@
++package com.homework.repository;
++
++import com.homework.model.Category;
++import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.data.jpa.repository.Query;
++import org.springframework.data.repository.query.Param;
++import org.springframework.stereotype.Repository;
++
++import java.util.List;
++import java.util.TreeMap;
++
++@Repository
++public interface CategoryRepository extends JpaRepository<Category, String> {
++    @Query(value ="WITH RECURSIVE temp1 ( title,parent_title,PATH, LEVEL ) AS (SELECT T1.title, T1.parent_title, CAST (T1.title AS VARCHAR (50)) as PATH, 1  FROM category T1 WHERE T1.parent_title IS NULL union select T2.title, T2.parent_title,  CAST ( temp1.PATH ||'->'|| T2.title AS VARCHAR(50)) ,LEVEL + 1 FROM category T2 INNER JOIN temp1 ON( temp1.title= T2.parent_title) ) select * from temp1 ORDER BY PATH ", nativeQuery = true)
++    List<Category> getViewTree();
++
++    @Query(value ="WITH RECURSIVE temp1 ( title,parent_title,PATH, LEVEL ) AS (SELECT T1.title, T1.parent_title, CAST (T1.title AS VARCHAR (50)) as PATH, 1  FROM category T1 WHERE T1.title = :title union select T2.title, T2.parent_title,  CAST ( temp1.PATH ||'->'|| T2.title AS VARCHAR(50)) ,LEVEL + 1 FROM category T2 INNER JOIN temp1 ON( temp1.title= T2.parent_title) ) select * from temp1 ORDER BY PATH ", nativeQuery = true)
++    List<Category> getViewTreeById(@Param("title") String name);
++    Category getByName(String name);
++}
+Index: src/main/java/com/homework/repository/DocumentRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/repository/DocumentRepository.java b/src/main/java/com/homework/repository/DocumentRepository.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/repository/DocumentRepository.java	
+@@ -0,0 +1,9 @@
++package com.homework.repository;
++
++import com.homework.model.Document;
++import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.stereotype.Repository;
++
++@Repository
++public interface DocumentRepository extends JpaRepository<Document, Long> {
++}
+Index: src/main/java/com/homework/configuration/TelegramBotConfiguration.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/homework/configuration/TelegramBotConfiguration.java b/src/main/java/com/homework/configuration/TelegramBotConfiguration.java
+new file mode 100644
+--- /dev/null	
++++ b/src/main/java/com/homework/configuration/TelegramBotConfiguration.java	
+@@ -0,0 +1,22 @@
++package com.homework.configuration;
++
++import com.pengrad.telegrambot.TelegramBot;
++import com.pengrad.telegrambot.model.DeleteMyCommands;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++
++@Configuration
++public class TelegramBotConfiguration {
++
++    @Value("${telegram.bot.token}")
++    private String token;
++
++    @Bean
++    public TelegramBot telegramBot() {
++        TelegramBot bot = new TelegramBot(token);
++        bot.execute(new DeleteMyCommands());
++        return bot;
++    }
++
++}
+Index: src/main/resources/liquibase/scripts/category.sql
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/resources/liquibase/scripts/category.sql b/src/main/resources/liquibase/scripts/category.sql
+new file mode 100644
+--- /dev/null	
++++ b/src/main/resources/liquibase/scripts/category.sql	
+@@ -0,0 +1,20 @@
++-- liquibase formatted sql
++
++-- changeset salimgareeva:1
++CREATE SCHEMA IF NOT EXISTS category;
++create table if not exists category(
++    title          TEXT primary key,
++    parent_title         TEXT
++);
++
++-- changeset salimgareeva:2
++CREATE SCHEMA IF NOT EXISTS document;
++CREATE TABLE IF NOT EXISTS document
++(
++    id                      BIGINT generated by default as identity primary key,
++    file_path               TEXT NOT NULL,
++    file_size               BIGINT NOT NULL,
++    media_type              TEXT NOT NULL,
++    data                    BYTEA NOT NULL
++
++);
+Index: src/main/resources/liquibase/changelog-master.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/resources/liquibase/changelog-master.yml b/src/main/resources/liquibase/changelog-master.yml
+new file mode 100644
+--- /dev/null	
++++ b/src/main/resources/liquibase/changelog-master.yml	
+@@ -0,0 +1,3 @@
++databaseChangeLog:
++  - include:
++      file: liquibase/scripts/category.sql
+\ No newline at end of file
+Index: src/main/resources/application.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+new file mode 100644
+--- /dev/null	
++++ b/src/main/resources/application.properties	
+@@ -0,0 +1,5 @@
++spring.datasource.url=jdbc:postgresql://localhost:5432/CategoriesBase
++spring.datasource.username=UserCategories
++spring.datasource.password=271188
++telegram.bot.token=5976176305:AAGPk9ddJGNSJseRP0zEFZG09FgeHwcgVAY
++spring.liquibase.change-log=classpath:liquibase/changelog-master.yml
+\ No newline at end of file
+Index: src/test/java/com/homework/service/CategoryServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/homework/service/CategoryServiceTest.java b/src/test/java/com/homework/service/CategoryServiceTest.java
+new file mode 100644
+--- /dev/null	
++++ b/src/test/java/com/homework/service/CategoryServiceTest.java	
+@@ -0,0 +1,106 @@
++package com.homework.service;
++
++import com.homework.model.Category;
++import com.homework.repository.CategoryRepository;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.extension.ExtendWith;
++import org.mockito.InjectMocks;
++import org.mockito.Mock;
++import org.mockito.junit.jupiter.MockitoExtension;
++import org.slf4j.Logger;
++
++import java.util.ArrayList;
++import java.util.Collection;
++import java.util.List;
++import java.util.Optional;
++
++import static org.junit.jupiter.api.Assertions.*;
++import static org.mockito.ArgumentMatchers.any;
++import static org.mockito.Mockito.*;
++
++@ExtendWith(MockitoExtension.class)
++class CategoryServiceTest {
++    private Logger logger;
++    @InjectMocks
++    private CategoryService categoryService;
++    @Mock
++    private CategoryRepository categoryRepository;
++    private Category expectedCategory;
++
++
++    @BeforeEach
++    public void setup() {
++        expectedCategory = new Category();
++        expectedCategory.setName("test");
++        expectedCategory.setParentName("parent");
++    }
++
++    @Test
++    void addElement() {
++        when(categoryRepository.save(any(Category.class))).thenReturn(expectedCategory);
++        Category actualCategory = categoryService.addElement(expectedCategory.getName(), expectedCategory.getParentName());
++        assertEquals(expectedCategory, actualCategory);
++
++    }
++
++   @Test
++    void editElement() {
++       Category updatedCategory = new Category();
++       String newParentName = "new parent";
++       updatedCategory.setName(expectedCategory.getName());
++       updatedCategory.setParentName(newParentName);
++
++
++       when(categoryRepository.findById(expectedCategory.getName())).thenReturn(Optional.of(expectedCategory));
++       when(categoryRepository.save(updatedCategory)).thenReturn(updatedCategory);
++
++       Category result = categoryService.editElement(updatedCategory);
++
++       assertNotNull(result);
++       assertEquals(newParentName, result.getParentName());
++       assertEquals(expectedCategory.getName(), result.getName());
++
++       verify(categoryRepository, times(1)).save(updatedCategory);
++
++   }
++
++    @Test
++    void removeElement() {
++
++        List<Category> categories = new ArrayList<>();
++        categories.add(expectedCategory);
++
++        when(categoryRepository.getViewTreeById(any(String.class))).thenReturn(categories);
++        doNothing().when(categoryRepository).deleteById(expectedCategory.getName());
++
++        categoryService.removeElement(expectedCategory.getName());
++
++        verify(categoryRepository, times(1)).deleteById(expectedCategory.getName());
++
++    }
++
++    @Test
++    void getViewTree() {
++
++
++        Category category = new Category();
++        category.setName("test 2");
++        category.setParentName("parent 2");
++
++
++        List<Category> foundCategories = new ArrayList<>();
++        foundCategories.add(expectedCategory);
++        foundCategories.add(category);
++
++        when(categoryRepository.getViewTree()).thenReturn(foundCategories);
++
++        Collection<Category> result = categoryService.getViewTree();
++
++        assertNotNull(result);
++        assertEquals(2, result.size());
++        assertTrue(result.contains(expectedCategory));
++        assertTrue(result.contains(category));
++
++    }
++}
+\ No newline at end of file
+Index: src/test/java/com/homework/service/DocumentServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/homework/service/DocumentServiceTest.java b/src/test/java/com/homework/service/DocumentServiceTest.java
+new file mode 100644
+--- /dev/null	
++++ b/src/test/java/com/homework/service/DocumentServiceTest.java	
+@@ -0,0 +1,16 @@
++package com.homework.service;
++
++import org.junit.jupiter.api.Test;
++
++import static org.junit.jupiter.api.Assertions.*;
++
++class DocumentServiceTest {
++
++    @Test
++    void createDocument() {
++    }
++
++    @Test
++    void testCreateDocument() {
++    }
++}
+\ No newline at end of file
+Index: src/test/java/com/homework/listener/TelegramBotUpdatesListenerTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/homework/listener/TelegramBotUpdatesListenerTest.java b/src/test/java/com/homework/listener/TelegramBotUpdatesListenerTest.java
+new file mode 100644
+--- /dev/null	
++++ b/src/test/java/com/homework/listener/TelegramBotUpdatesListenerTest.java	
+@@ -0,0 +1,67 @@
++package com.homework.listener;
++
++import com.homework.model.Category;
++import com.homework.repository.CategoryRepository;
++import com.homework.repository.DocumentRepository;
++import com.homework.service.CategoryService;
++import com.pengrad.telegrambot.TelegramBot;
++import com.pengrad.telegrambot.request.SendMessage;
++import org.assertj.core.api.Assertions;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.extension.ExtendWith;
++import org.mockito.ArgumentCaptor;
++import org.mockito.InjectMocks;
++import org.mockito.Mock;
++import org.mockito.Mockito;
++import org.mockito.junit.jupiter.MockitoExtension;
++
++import static org.junit.jupiter.api.Assertions.*;
++import static org.mockito.ArgumentMatchers.any;
++import static org.mockito.Mockito.*;
++import static org.mockito.internal.verification.VerificationModeFactory.atLeastOnce;
++@ExtendWith(MockitoExtension.class)
++class TelegramBotUpdatesListenerTest {
++    @Mock
++    private TelegramBot telegramBot;
++    @Mock
++    private CategoryRepository categoryRepository;
++    @Mock
++    private CategoryService categoryService;
++    @Mock
++    private DocumentRepository documentRepository;
++
++    @InjectMocks
++    private TelegramBotUpdatesListener telegramBotUpdatesListener;
++
++
++    @Test
++    void addElement() throws  Exception{
++//        Category category = new Category("test");
++//
++//        TelegramBot mockedTelegramBot = mock(TelegramBot.class);
++//        CategoryService mockedCategoryService = mock(CategoryService.class);
++//        CategoryRepository mockedcategoryRepository1 = mock(CategoryService.class);
++//        CategoryService mockedCategoryService = mock(CategoryService.class);
++//      ///  doNothing().when(mockedCategoryService).addElement(category.getName());
++//        TelegramBotUpdatesListener telegramBotUpdatesListener = new TelegramBotUpdatesListener();
++//        telegramBotUpdatesListener.addElement(category.getName(), 1L);
++
++    }
++
++    @Test
++    void viewTree() {
++    }
++
++    @Test
++    void removeElement() {
++    }
++
++    @Test
++    void help() {
++    }
++
++    @Test
++    void downloadExcel() {
++    }
++}
+\ No newline at end of file
+Index: src/test/java/com/homework/controller/CategoryControllerTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/homework/controller/CategoryControllerTest.java b/src/test/java/com/homework/controller/CategoryControllerTest.java
+new file mode 100644
+--- /dev/null	
++++ b/src/test/java/com/homework/controller/CategoryControllerTest.java	
+@@ -0,0 +1,133 @@
++package com.homework.controller;
++
++import com.homework.model.Category;
++import com.homework.repository.CategoryRepository;
++import com.homework.service.CategoryService;
++import com.fasterxml.jackson.databind.ObjectMapper;
++import org.json.JSONObject;
++import org.junit.jupiter.api.Test;
++import org.mockito.InjectMocks;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
++import org.springframework.boot.test.mock.mockito.MockBean;
++import org.springframework.boot.test.mock.mockito.SpyBean;
++import org.springframework.http.MediaType;
++import org.springframework.test.web.servlet.MockMvc;
++import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
++
++import java.util.ArrayList;
++import java.util.List;
++import java.util.Optional;
++
++import static org.junit.jupiter.api.Assertions.*;
++import static org.mockito.ArgumentMatchers.any;
++import static org.mockito.Mockito.*;
++import static org.mockito.internal.verification.VerificationModeFactory.atLeastOnce;
++import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
++
++@WebMvcTest(CategoryController.class)
++class CategoryControllerTest {
++    @Autowired
++    private MockMvc mockMvc;
++    @MockBean
++    private CategoryRepository categoryRepository;
++
++    @SpyBean
++    private CategoryService categoryService;
++
++    @InjectMocks
++    private CategoryController categoryController;
++    @Autowired
++    private ObjectMapper objectMapper;
++
++    @Test
++    void addElement()  throws Exception{
++        String name = "test";
++        String parent_name = "parent";
++        JSONObject categoryObject = new JSONObject();
++        categoryObject.put("name", name);
++        categoryObject.put("parent_name", parent_name);
++
++        Category category = new Category();
++        category.setName(name);
++        category.setParentName(parent_name);
++
++        mockMvc.perform(MockMvcRequestBuilders
++                        .post("/categories/{name}/{parent_name}", category.getName(),category.getParentName())
++                        .accept(MediaType.APPLICATION_JSON)
++                     )
++                .andExpect(status().isOk())
++                .andExpect(jsonPath("$.name").value(name))
++                .andExpect(jsonPath("$.parent_name").value(parent_name));
++
++
++    }
++
++    @Test
++    void editElement () throws Exception{
++        String name = "test";
++        String parent_name = "parent";
++        String newParent_name = "parent";
++
++
++        JSONObject categoryObject = new JSONObject();
++        categoryObject.put("name", name);
++        categoryObject.put("parent_name", newParent_name);
++
++        Category category = new Category();
++        category.setName(name);
++        category.setParentName(parent_name);
++
++
++        Category newCategory = new Category();
++        newCategory.setName(name);
++        newCategory.setParentName(newParent_name);
++
++        when(categoryRepository.findById(any(String.class))).thenReturn(Optional.of(category));
++        when(categoryRepository.save(any(Category.class))).thenReturn(newCategory);
++
++
++        mockMvc.perform(MockMvcRequestBuilders
++                        .patch("/categories")
++                        .content(categoryObject.toString())
++                        .contentType(MediaType.APPLICATION_JSON)
++                        .accept(MediaType.APPLICATION_JSON)
++                       )
++                .andExpect(status().isOk())
++                .andExpect(jsonPath("$.name").value(name))
++                .andExpect(jsonPath("$.parent_name").value(newParent_name));
++
++    }
++
++    @Test
++    void removeElement() throws Exception {
++        String name = "test";
++        String parent_name = "parent";
++
++        Category category = new Category();
++        category.setName(name);
++        category.setParentName(parent_name);
++
++        List<Category> categories = new ArrayList<>();
++        categories.add(category);
++
++        when(categoryRepository.getViewTreeById(any(String.class))).thenReturn(categories);
++        doNothing().when(categoryRepository).deleteById(name);
++
++        mockMvc.perform(MockMvcRequestBuilders
++                        .delete("/categories/{name}", name)
++                        .contentType(MediaType.APPLICATION_JSON)
++                        .accept(MediaType.APPLICATION_JSON))
++                .andExpect(status().isOk());
++
++        verify(categoryRepository, atLeastOnce()).deleteById(name);
++    }
++
++    @Test
++    void viewTree() throws Exception{
++        mockMvc.perform(get("/categories"))
++                .andExpect(status().isOk());
++    }
++}
+\ No newline at end of file
+Index: src/test/java/com/homework/controller/DocumentControllerTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/homework/controller/DocumentControllerTest.java b/src/test/java/com/homework/controller/DocumentControllerTest.java
+new file mode 100644
+--- /dev/null	
++++ b/src/test/java/com/homework/controller/DocumentControllerTest.java	
+@@ -0,0 +1,82 @@
++package com.homework.controller;
++
++import com.homework.model.Document;
++import com.homework.repository.DocumentRepository;
++import com.homework.service.DocumentService;
++import com.fasterxml.jackson.databind.ObjectMapper;
++import org.json.JSONObject;
++import org.junit.jupiter.api.Test;
++import org.mockito.InjectMocks;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
++import org.springframework.boot.test.mock.mockito.MockBean;
++import org.springframework.boot.test.mock.mockito.SpyBean;
++import org.springframework.http.MediaType;
++import org.springframework.mock.web.MockMultipartFile;
++import org.springframework.test.web.servlet.MockMvc;
++import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
++
++import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
++
++@WebMvcTest(DocumentController.class)
++class DocumentControllerTest {
++    @Autowired
++    private MockMvc mockMvc;
++    @MockBean
++    private DocumentRepository documentRepository;
++
++    @SpyBean
++    private DocumentService documentService;
++
++    @InjectMocks
++    private DocumentController documentController;
++    @Autowired
++    private ObjectMapper objectMapper;
++
++    @Test
++    void createDocument() throws Exception{
++        Long id = 1L;
++        String filePath = "test";
++        long fileSize = 1L;
++        String mediaType = ".xls";
++
++        JSONObject documentObject = new JSONObject();
++        //documentObject.put("id", id);
++        documentObject.put("filePath", filePath);
++        documentObject.put("fileSize", fileSize);
++        documentObject.put("mediaType", mediaType);
++
++
++        Document document = new Document();
++       // document.setId(id);
++        document.setFilePath(filePath);
++        document.setFileSize(fileSize);
++        document.setMediaType(mediaType);
++
++        MockMultipartFile file
++                = new MockMultipartFile(
++                "test",
++                "test.xls",
++                MediaType.ALL_VALUE,
++                DocumentControllerTest.class.getResourceAsStream("test.xls")
++        );
++
++
++        document.setData(file.getBytes());
++        documentObject.put("data", document.getData());
++
++        mockMvc.perform(MockMvcRequestBuilders
++                        .post("/documents")
++                                .content(documentObject.toString())
++                        .contentType(MediaType.APPLICATION_JSON)
++                        .accept(MediaType.APPLICATION_JSON)
++                )
++                .andExpect(status().isOk())
++              //  .andExpect(jsonPath("$.filePath").value(filePath))
++//                .andExpect(jsonPath("$.fileSize").value(fileSize))
++//                .andExpect(jsonPath("$.mediaType").value(mediaType))
++                ;
++
++
++    }
++}
+\ No newline at end of file
+Index: src/test/java/com/homework/AppTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/homework/AppTest.java b/src/test/java/com/homework/AppTest.java
+new file mode 100644
+--- /dev/null	
++++ b/src/test/java/com/homework/AppTest.java	
+@@ -0,0 +1,13 @@
++package com.homework;
++
++
++import org.junit.jupiter.api.Test;
++import org.springframework.boot.test.context.SpringBootTest;
++
++@SpringBootTest
++public class AppTest{
++        @Test
++        void contextLoads() {
++        }
++
++}
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/vcs.xml	
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/misc.xml	
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ExternalStorageConfigurationManager" enabled="true" />
++  <component name="MavenProjectsManager">
++    <option name="originalFiles">
++      <list>
++        <option value="$PROJECT_DIR$/pom.xml" />
++      </list>
++    </option>
++  </component>
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="corretto-17 (2)" project-jdk-type="JavaSDK">
++    <output url="file://$PROJECT_DIR$/out" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+--- /dev/null	
++++ b/.idea/.gitignore	
+@@ -0,0 +1,5 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++/.idea
++/target
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/compiler.xml b/.idea/compiler.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/compiler.xml	
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="CompilerConfiguration">
++    <annotationProcessing>
++      <profile default="true" name="Default" enabled="true" />
++      <profile name="Maven default annotation processors profile" enabled="true">
++        <sourceOutputDir name="target/generated-sources/annotations" />
++        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
++        <outputRelativeToContentRoot value="true" />
++        <module name="TelegramCategoryBot" />
++      </profile>
++    </annotationProcessing>
++  </component>
++  <component name="JavacSettings">
++    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
++      <module name="TelegramCategoryBot" options="-parameters" />
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/encodings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/encodings.xml b/.idea/encodings.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/encodings.xml	
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="Encoding">
++    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
++    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/dbnavigator.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/dbnavigator.xml b/.idea/dbnavigator.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/dbnavigator.xml	
+@@ -0,0 +1,529 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="DBNavigator.Project.DataEditorManager">
++    <record-view-column-sorting-type value="BY_INDEX" />
++    <value-preview-text-wrapping value="true" />
++    <value-preview-pinned value="false" />
++  </component>
++  <component name="DBNavigator.Project.DatabaseBrowserManager">
++    <autoscroll-to-editor value="false" />
++    <autoscroll-from-editor value="true" />
++    <show-object-properties value="true" />
++    <loaded-nodes />
++  </component>
++  <component name="DBNavigator.Project.DatabaseConsoleManager">
++    <connection id="c4f0cd8b-93f1-4e64-bf27-de8963b3cbbf">
++      <console name="CategoriesBase" type="STANDARD" schema="" session="Main" />
++    </connection>
++  </component>
++  <component name="DBNavigator.Project.DatabaseEditorStateManager">
++    <last-used-providers />
++  </component>
++  <component name="DBNavigator.Project.DatabaseFileManager">
++    <open-files />
++  </component>
++  <component name="DBNavigator.Project.FileConnectionMappingManager">
++    <mapping file-url="file://$PROJECT_DIR$/src/main/resources/liquibase/scripts/category.sql" connection-id="c4f0cd8b-93f1-4e64-bf27-de8963b3cbbf" session-id="MAIN" current-schema="CategoriesBase" />
++  </component>
++  <component name="DBNavigator.Project.ObjectQuickFilterManager">
++    <last-used-operator value="EQUAL" />
++    <filters />
++  </component>
++  <component name="DBNavigator.Project.Settings">
++    <connections>
++      <connection id="c4f0cd8b-93f1-4e64-bf27-de8963b3cbbf" active="true" signed="true">
++        <database>
++          <name value="CategoriesBase" />
++          <description value="" />
++          <database-type value="POSTGRES" />
++          <config-type value="BASIC" />
++          <database-version value="15.1" />
++          <driver-source value="BUNDLED" />
++          <driver-library value="" />
++          <driver value="" />
++          <url-type value="DATABASE" />
++          <host value="localhost" />
++          <port value="5432" />
++          <database value="CategoriesBase" />
++          <tns-folder value="" />
++          <tns-profile value="" />
++          <type value="USER_PASSWORD" />
++          <user value="UserCategories" />
++          <deprecated-pwd value="MjcxMTg4" />
++        </database>
++        <properties>
++          <auto-commit value="false" />
++        </properties>
++        <ssh-settings>
++          <active value="false" />
++          <proxy-host value="" />
++          <proxy-port value="22" />
++          <proxy-user value="" />
++          <deprecated-proxy-pwd value="" />
++          <auth-type value="PASSWORD" />
++          <key-file value="" />
++          <key-passphrase value="" />
++        </ssh-settings>
++        <ssl-settings>
++          <active value="false" />
++          <certificate-authority-file value="" />
++          <client-certificate-file value="" />
++          <client-key-file value="" />
++        </ssl-settings>
++        <details>
++          <charset value="UTF-8" />
++          <session-management value="true" />
++          <ddl-file-binding value="true" />
++          <database-logging value="true" />
++          <connect-automatically value="true" />
++          <restore-workspace value="true" />
++          <restore-workspace-deep value="false" />
++          <environment-type value="default" />
++          <connectivity-timeout value="30" />
++          <idle-time-to-disconnect value="30" />
++          <idle-time-to-disconnect-pool value="5" />
++          <credential-expiry-time value="10" />
++          <max-connection-pool-size value="7" />
++          <alternative-statement-delimiter value="" />
++        </details>
++        <debugger>
++          <compile-dependencies value="true" />
++          <tcp-driver-tunneling value="false" />
++          <tcp-host-address value="" />
++          <tcp-port-from value="4000" />
++          <tcp-port-to value="4999" />
++        </debugger>
++        <object-filters hide-empty-schemas="false" hide-pseudo-columns="false">
++          <object-type-filter>
++            <object-type name="SCHEMA" enabled="true" />
++            <object-type name="USER" enabled="true" />
++            <object-type name="ROLE" enabled="true" />
++            <object-type name="PRIVILEGE" enabled="true" />
++            <object-type name="CHARSET" enabled="true" />
++            <object-type name="TABLE" enabled="true" />
++            <object-type name="VIEW" enabled="true" />
++            <object-type name="MATERIALIZED_VIEW" enabled="true" />
++            <object-type name="NESTED_TABLE" enabled="true" />
++            <object-type name="COLUMN" enabled="true" />
++            <object-type name="INDEX" enabled="true" />
++            <object-type name="CONSTRAINT" enabled="true" />
++            <object-type name="DATASET_TRIGGER" enabled="true" />
++            <object-type name="DATABASE_TRIGGER" enabled="true" />
++            <object-type name="SYNONYM" enabled="true" />
++            <object-type name="SEQUENCE" enabled="true" />
++            <object-type name="PROCEDURE" enabled="true" />
++            <object-type name="FUNCTION" enabled="true" />
++            <object-type name="PACKAGE" enabled="true" />
++            <object-type name="TYPE" enabled="true" />
++            <object-type name="TYPE_ATTRIBUTE" enabled="true" />
++            <object-type name="ARGUMENT" enabled="true" />
++            <object-type name="DIMENSION" enabled="true" />
++            <object-type name="CLUSTER" enabled="true" />
++            <object-type name="DBLINK" enabled="true" />
++          </object-type-filter>
++          <object-name-filters />
++        </object-filters>
++      </connection>
++    </connections>
++    <browser-settings>
++      <general>
++        <display-mode value="TABBED" />
++        <navigation-history-size value="100" />
++        <show-object-details value="false" />
++      </general>
++      <filters>
++        <object-type-filter>
++          <object-type name="SCHEMA" enabled="true" />
++          <object-type name="USER" enabled="true" />
++          <object-type name="ROLE" enabled="true" />
++          <object-type name="PRIVILEGE" enabled="true" />
++          <object-type name="CHARSET" enabled="true" />
++          <object-type name="TABLE" enabled="true" />
++          <object-type name="VIEW" enabled="true" />
++          <object-type name="MATERIALIZED_VIEW" enabled="true" />
++          <object-type name="NESTED_TABLE" enabled="true" />
++          <object-type name="COLUMN" enabled="true" />
++          <object-type name="INDEX" enabled="true" />
++          <object-type name="CONSTRAINT" enabled="true" />
++          <object-type name="DATASET_TRIGGER" enabled="true" />
++          <object-type name="DATABASE_TRIGGER" enabled="true" />
++          <object-type name="SYNONYM" enabled="true" />
++          <object-type name="SEQUENCE" enabled="true" />
++          <object-type name="PROCEDURE" enabled="true" />
++          <object-type name="FUNCTION" enabled="true" />
++          <object-type name="PACKAGE" enabled="true" />
++          <object-type name="TYPE" enabled="true" />
++          <object-type name="TYPE_ATTRIBUTE" enabled="true" />
++          <object-type name="ARGUMENT" enabled="true" />
++          <object-type name="DIMENSION" enabled="true" />
++          <object-type name="CLUSTER" enabled="true" />
++          <object-type name="DBLINK" enabled="true" />
++        </object-type-filter>
++      </filters>
++      <sorting>
++        <object-type name="COLUMN" sorting-type="NAME" />
++        <object-type name="FUNCTION" sorting-type="NAME" />
++        <object-type name="PROCEDURE" sorting-type="NAME" />
++        <object-type name="ARGUMENT" sorting-type="POSITION" />
++        <object-type name="TYPE ATTRIBUTE" sorting-type="POSITION" />
++      </sorting>
++      <default-editors>
++        <object-type name="VIEW" editor-type="SELECTION" />
++        <object-type name="PACKAGE" editor-type="SELECTION" />
++        <object-type name="TYPE" editor-type="SELECTION" />
++      </default-editors>
++    </browser-settings>
++    <navigation-settings>
++      <lookup-filters>
++        <lookup-objects>
++          <object-type name="SCHEMA" enabled="true" />
++          <object-type name="USER" enabled="false" />
++          <object-type name="ROLE" enabled="false" />
++          <object-type name="PRIVILEGE" enabled="false" />
++          <object-type name="CHARSET" enabled="false" />
++          <object-type name="TABLE" enabled="true" />
++          <object-type name="VIEW" enabled="true" />
++          <object-type name="MATERIALIZED VIEW" enabled="true" />
++          <object-type name="INDEX" enabled="true" />
++          <object-type name="CONSTRAINT" enabled="true" />
++          <object-type name="DATASET TRIGGER" enabled="true" />
++          <object-type name="DATABASE TRIGGER" enabled="true" />
++          <object-type name="SYNONYM" enabled="false" />
++          <object-type name="SEQUENCE" enabled="true" />
++          <object-type name="PROCEDURE" enabled="true" />
++          <object-type name="FUNCTION" enabled="true" />
++          <object-type name="PACKAGE" enabled="true" />
++          <object-type name="TYPE" enabled="true" />
++          <object-type name="DIMENSION" enabled="false" />
++          <object-type name="CLUSTER" enabled="false" />
++          <object-type name="DBLINK" enabled="true" />
++        </lookup-objects>
++        <force-database-load value="false" />
++        <prompt-connection-selection value="true" />
++        <prompt-schema-selection value="true" />
++      </lookup-filters>
++    </navigation-settings>
++    <dataset-grid-settings>
++      <general>
++        <enable-zooming value="true" />
++        <enable-column-tooltip value="true" />
++      </general>
++      <sorting>
++        <nulls-first value="true" />
++        <max-sorting-columns value="4" />
++      </sorting>
++      <audit-columns>
++        <column-names value="" />
++        <visible value="true" />
++        <editable value="false" />
++      </audit-columns>
++    </dataset-grid-settings>
++    <dataset-editor-settings>
++      <text-editor-popup>
++        <active value="false" />
++        <active-if-empty value="false" />
++        <data-length-threshold value="100" />
++        <popup-delay value="1000" />
++      </text-editor-popup>
++      <values-actions-popup>
++        <show-popup-button value="true" />
++        <element-count-threshold value="1000" />
++        <data-length-threshold value="250" />
++      </values-actions-popup>
++      <general>
++        <fetch-block-size value="100" />
++        <fetch-timeout value="30" />
++        <trim-whitespaces value="true" />
++        <convert-empty-strings-to-null value="true" />
++        <select-content-on-cell-edit value="true" />
++        <large-value-preview-active value="true" />
++      </general>
++      <filters>
++        <prompt-filter-dialog value="true" />
++        <default-filter-type value="BASIC" />
++      </filters>
++      <qualified-text-editor text-length-threshold="300">
++        <content-types>
++          <content-type name="Text" enabled="true" />
++          <content-type name="Properties" enabled="true" />
++          <content-type name="XML" enabled="true" />
++          <content-type name="DTD" enabled="true" />
++          <content-type name="HTML" enabled="true" />
++          <content-type name="XHTML" enabled="true" />
++          <content-type name="Java" enabled="true" />
++          <content-type name="SQL" enabled="true" />
++          <content-type name="PL/SQL" enabled="true" />
++          <content-type name="JSON" enabled="true" />
++          <content-type name="JSON5" enabled="true" />
++          <content-type name="Groovy" enabled="true" />
++          <content-type name="AIDL" enabled="true" />
++          <content-type name="YAML" enabled="true" />
++          <content-type name="Manifest" enabled="true" />
++        </content-types>
++      </qualified-text-editor>
++      <record-navigation>
++        <navigation-target value="VIEWER" />
++      </record-navigation>
++    </dataset-editor-settings>
++    <code-editor-settings>
++      <general>
++        <show-object-navigation-gutter value="false" />
++        <show-spec-declaration-navigation-gutter value="true" />
++        <enable-spellchecking value="true" />
++        <enable-reference-spellchecking value="false" />
++      </general>
++      <confirmations>
++        <save-changes value="false" />
++        <revert-changes value="true" />
++      </confirmations>
++    </code-editor-settings>
++    <code-completion-settings>
++      <filters>
++        <basic-filter>
++          <filter-element type="RESERVED_WORD" id="keyword" selected="true" />
++          <filter-element type="RESERVED_WORD" id="function" selected="true" />
++          <filter-element type="RESERVED_WORD" id="parameter" selected="true" />
++          <filter-element type="RESERVED_WORD" id="datatype" selected="true" />
++          <filter-element type="RESERVED_WORD" id="exception" selected="true" />
++          <filter-element type="OBJECT" id="schema" selected="true" />
++          <filter-element type="OBJECT" id="role" selected="true" />
++          <filter-element type="OBJECT" id="user" selected="true" />
++          <filter-element type="OBJECT" id="privilege" selected="true" />
++          <user-schema>
++            <filter-element type="OBJECT" id="table" selected="true" />
++            <filter-element type="OBJECT" id="view" selected="true" />
++            <filter-element type="OBJECT" id="materialized view" selected="true" />
++            <filter-element type="OBJECT" id="index" selected="true" />
++            <filter-element type="OBJECT" id="constraint" selected="true" />
++            <filter-element type="OBJECT" id="trigger" selected="true" />
++            <filter-element type="OBJECT" id="synonym" selected="false" />
++            <filter-element type="OBJECT" id="sequence" selected="true" />
++            <filter-element type="OBJECT" id="procedure" selected="true" />
++            <filter-element type="OBJECT" id="function" selected="true" />
++            <filter-element type="OBJECT" id="package" selected="true" />
++            <filter-element type="OBJECT" id="type" selected="true" />
++            <filter-element type="OBJECT" id="dimension" selected="true" />
++            <filter-element type="OBJECT" id="cluster" selected="true" />
++            <filter-element type="OBJECT" id="dblink" selected="true" />
++          </user-schema>
++          <public-schema>
++            <filter-element type="OBJECT" id="table" selected="false" />
++            <filter-element type="OBJECT" id="view" selected="false" />
++            <filter-element type="OBJECT" id="materialized view" selected="false" />
++            <filter-element type="OBJECT" id="index" selected="false" />
++            <filter-element type="OBJECT" id="constraint" selected="false" />
++            <filter-element type="OBJECT" id="trigger" selected="false" />
++            <filter-element type="OBJECT" id="synonym" selected="false" />
++            <filter-element type="OBJECT" id="sequence" selected="false" />
++            <filter-element type="OBJECT" id="procedure" selected="false" />
++            <filter-element type="OBJECT" id="function" selected="false" />
++            <filter-element type="OBJECT" id="package" selected="false" />
++            <filter-element type="OBJECT" id="type" selected="false" />
++            <filter-element type="OBJECT" id="dimension" selected="false" />
++            <filter-element type="OBJECT" id="cluster" selected="false" />
++            <filter-element type="OBJECT" id="dblink" selected="false" />
++          </public-schema>
++          <any-schema>
++            <filter-element type="OBJECT" id="table" selected="true" />
++            <filter-element type="OBJECT" id="view" selected="true" />
++            <filter-element type="OBJECT" id="materialized view" selected="true" />
++            <filter-element type="OBJECT" id="index" selected="true" />
++            <filter-element type="OBJECT" id="constraint" selected="true" />
++            <filter-element type="OBJECT" id="trigger" selected="true" />
++            <filter-element type="OBJECT" id="synonym" selected="true" />
++            <filter-element type="OBJECT" id="sequence" selected="true" />
++            <filter-element type="OBJECT" id="procedure" selected="true" />
++            <filter-element type="OBJECT" id="function" selected="true" />
++            <filter-element type="OBJECT" id="package" selected="true" />
++            <filter-element type="OBJECT" id="type" selected="true" />
++            <filter-element type="OBJECT" id="dimension" selected="true" />
++            <filter-element type="OBJECT" id="cluster" selected="true" />
++            <filter-element type="OBJECT" id="dblink" selected="true" />
++          </any-schema>
++        </basic-filter>
++        <extended-filter>
++          <filter-element type="RESERVED_WORD" id="keyword" selected="true" />
++          <filter-element type="RESERVED_WORD" id="function" selected="true" />
++          <filter-element type="RESERVED_WORD" id="parameter" selected="true" />
++          <filter-element type="RESERVED_WORD" id="datatype" selected="true" />
++          <filter-element type="RESERVED_WORD" id="exception" selected="true" />
++          <filter-element type="OBJECT" id="schema" selected="true" />
++          <filter-element type="OBJECT" id="user" selected="true" />
++          <filter-element type="OBJECT" id="role" selected="true" />
++          <filter-element type="OBJECT" id="privilege" selected="true" />
++          <user-schema>
++            <filter-element type="OBJECT" id="table" selected="true" />
++            <filter-element type="OBJECT" id="view" selected="true" />
++            <filter-element type="OBJECT" id="materialized view" selected="true" />
++            <filter-element type="OBJECT" id="index" selected="true" />
++            <filter-element type="OBJECT" id="constraint" selected="true" />
++            <filter-element type="OBJECT" id="trigger" selected="true" />
++            <filter-element type="OBJECT" id="synonym" selected="true" />
++            <filter-element type="OBJECT" id="sequence" selected="true" />
++            <filter-element type="OBJECT" id="procedure" selected="true" />
++            <filter-element type="OBJECT" id="function" selected="true" />
++            <filter-element type="OBJECT" id="package" selected="true" />
++            <filter-element type="OBJECT" id="type" selected="true" />
++            <filter-element type="OBJECT" id="dimension" selected="true" />
++            <filter-element type="OBJECT" id="cluster" selected="true" />
++            <filter-element type="OBJECT" id="dblink" selected="true" />
++          </user-schema>
++          <public-schema>
++            <filter-element type="OBJECT" id="table" selected="true" />
++            <filter-element type="OBJECT" id="view" selected="true" />
++            <filter-element type="OBJECT" id="materialized view" selected="true" />
++            <filter-element type="OBJECT" id="index" selected="true" />
++            <filter-element type="OBJECT" id="constraint" selected="true" />
++            <filter-element type="OBJECT" id="trigger" selected="true" />
++            <filter-element type="OBJECT" id="synonym" selected="true" />
++            <filter-element type="OBJECT" id="sequence" selected="true" />
++            <filter-element type="OBJECT" id="procedure" selected="true" />
++            <filter-element type="OBJECT" id="function" selected="true" />
++            <filter-element type="OBJECT" id="package" selected="true" />
++            <filter-element type="OBJECT" id="type" selected="true" />
++            <filter-element type="OBJECT" id="dimension" selected="true" />
++            <filter-element type="OBJECT" id="cluster" selected="true" />
++            <filter-element type="OBJECT" id="dblink" selected="true" />
++          </public-schema>
++          <any-schema>
++            <filter-element type="OBJECT" id="table" selected="true" />
++            <filter-element type="OBJECT" id="view" selected="true" />
++            <filter-element type="OBJECT" id="materialized view" selected="true" />
++            <filter-element type="OBJECT" id="index" selected="true" />
++            <filter-element type="OBJECT" id="constraint" selected="true" />
++            <filter-element type="OBJECT" id="trigger" selected="true" />
++            <filter-element type="OBJECT" id="synonym" selected="true" />
++            <filter-element type="OBJECT" id="sequence" selected="true" />
++            <filter-element type="OBJECT" id="procedure" selected="true" />
++            <filter-element type="OBJECT" id="function" selected="true" />
++            <filter-element type="OBJECT" id="package" selected="true" />
++            <filter-element type="OBJECT" id="type" selected="true" />
++            <filter-element type="OBJECT" id="dimension" selected="true" />
++            <filter-element type="OBJECT" id="cluster" selected="true" />
++            <filter-element type="OBJECT" id="dblink" selected="true" />
++          </any-schema>
++        </extended-filter>
++      </filters>
++      <sorting enabled="true">
++        <sorting-element type="RESERVED_WORD" id="keyword" />
++        <sorting-element type="RESERVED_WORD" id="datatype" />
++        <sorting-element type="OBJECT" id="column" />
++        <sorting-element type="OBJECT" id="table" />
++        <sorting-element type="OBJECT" id="view" />
++        <sorting-element type="OBJECT" id="materialized view" />
++        <sorting-element type="OBJECT" id="index" />
++        <sorting-element type="OBJECT" id="constraint" />
++        <sorting-element type="OBJECT" id="trigger" />
++        <sorting-element type="OBJECT" id="synonym" />
++        <sorting-element type="OBJECT" id="sequence" />
++        <sorting-element type="OBJECT" id="procedure" />
++        <sorting-element type="OBJECT" id="function" />
++        <sorting-element type="OBJECT" id="package" />
++        <sorting-element type="OBJECT" id="type" />
++        <sorting-element type="OBJECT" id="dimension" />
++        <sorting-element type="OBJECT" id="cluster" />
++        <sorting-element type="OBJECT" id="dblink" />
++        <sorting-element type="OBJECT" id="schema" />
++        <sorting-element type="OBJECT" id="role" />
++        <sorting-element type="OBJECT" id="user" />
++        <sorting-element type="RESERVED_WORD" id="function" />
++        <sorting-element type="RESERVED_WORD" id="parameter" />
++      </sorting>
++      <format>
++        <enforce-code-style-case value="true" />
++      </format>
++    </code-completion-settings>
++    <execution-engine-settings>
++      <statement-execution>
++        <fetch-block-size value="100" />
++        <execution-timeout value="20" />
++        <debug-execution-timeout value="600" />
++        <focus-result value="false" />
++        <prompt-execution value="false" />
++      </statement-execution>
++      <script-execution>
++        <command-line-interfaces />
++        <execution-timeout value="300" />
++      </script-execution>
++      <method-execution>
++        <execution-timeout value="30" />
++        <debug-execution-timeout value="600" />
++        <parameter-history-size value="10" />
++      </method-execution>
++    </execution-engine-settings>
++    <operation-settings>
++      <transactions>
++        <uncommitted-changes>
++          <on-project-close value="ASK" />
++          <on-disconnect value="ASK" />
++          <on-autocommit-toggle value="ASK" />
++        </uncommitted-changes>
++        <multiple-uncommitted-changes>
++          <on-commit value="ASK" />
++          <on-rollback value="ASK" />
++        </multiple-uncommitted-changes>
++      </transactions>
++      <session-browser>
++        <disconnect-session value="ASK" />
++        <kill-session value="ASK" />
++        <reload-on-filter-change value="false" />
++      </session-browser>
++      <compiler>
++        <compile-type value="KEEP" />
++        <compile-dependencies value="ASK" />
++        <always-show-controls value="false" />
++      </compiler>
++      <debugger>
++        <debugger-type value="ASK" />
++      </debugger>
++    </operation-settings>
++    <ddl-file-settings>
++      <extensions>
++        <mapping file-type-id="VIEW" extensions="vw" />
++        <mapping file-type-id="TRIGGER" extensions="trg" />
++        <mapping file-type-id="PROCEDURE" extensions="prc" />
++        <mapping file-type-id="FUNCTION" extensions="fnc" />
++        <mapping file-type-id="PACKAGE" extensions="pkg" />
++        <mapping file-type-id="PACKAGE_SPEC" extensions="pks" />
++        <mapping file-type-id="PACKAGE_BODY" extensions="pkb" />
++        <mapping file-type-id="TYPE" extensions="tpe" />
++        <mapping file-type-id="TYPE_SPEC" extensions="tps" />
++        <mapping file-type-id="TYPE_BODY" extensions="tpb" />
++      </extensions>
++      <general>
++        <lookup-ddl-files value="true" />
++        <create-ddl-files value="false" />
++        <synchronize-ddl-files value="true" />
++        <use-qualified-names value="false" />
++        <make-scripts-rerunnable value="true" />
++      </general>
++    </ddl-file-settings>
++    <general-settings>
++      <regional-settings>
++        <date-format value="MEDIUM" />
++        <number-format value="UNGROUPED" />
++        <locale value="SYSTEM_DEFAULT" />
++        <use-custom-formats value="false" />
++      </regional-settings>
++      <environment>
++        <environment-types>
++          <environment-type id="development" name="Development" description="Development environment" color="-2430209/-12296320" readonly-code="false" readonly-data="false" />
++          <environment-type id="integration" name="Integration" description="Integration environment" color="-2621494/-12163514" readonly-code="true" readonly-data="false" />
++          <environment-type id="production" name="Production" description="Productive environment" color="-11574/-10271420" readonly-code="true" readonly-data="true" />
++          <environment-type id="other" name="Other" description="" color="-1576/-10724543" readonly-code="false" readonly-data="false" />
++        </environment-types>
++        <visibility-settings>
++          <connection-tabs value="true" />
++          <dialog-headers value="true" />
++          <object-editor-tabs value="true" />
++          <script-editor-tabs value="false" />
++          <execution-result-tabs value="true" />
++        </visibility-settings>
++      </environment>
++    </general-settings>
++  </component>
++  <component name="DBNavigator.Project.StatementExecutionManager">
++    <execution-variables />
++    <execution-variable-types />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/jarRepositories.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/jarRepositories.xml b/.idea/jarRepositories.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/jarRepositories.xml	
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="RemoteRepositoriesConfiguration">
++    <remote-repository>
++      <option name="id" value="central" />
++      <option name="name" value="Central Repository" />
++      <option name="url" value="https://repo.maven.apache.org/maven2" />
++    </remote-repository>
++    <remote-repository>
++      <option name="id" value="central" />
++      <option name="name" value="Maven Central repository" />
++      <option name="url" value="https://repo1.maven.org/maven2" />
++    </remote-repository>
++    <remote-repository>
++      <option name="id" value="jboss.community" />
++      <option name="name" value="JBoss Community repository" />
++      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
++    </remote-repository>
++  </component>
++</project>
+\ No newline at end of file
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+new file mode 100644
+--- /dev/null	
++++ b/pom.xml	
+@@ -0,0 +1,94 @@
++<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <parent>
++    <groupId>org.springframework.boot</groupId>
++    <artifactId>spring-boot-starter-parent</artifactId>
++    <version>2.6.5</version>
++    <relativePath/> <!-- lookup parent from repository -->
++  </parent>
++  <groupId>com.homework</groupId>
++  <artifactId>TelegramCategoryBot</artifactId>
++  <version>1.0-SNAPSHOT</version>
++<!--  <packaging>jar</packaging>-->
++
++  <name>TelegramCategoryBot</name>
++  <description>Telegram Bot with Spring Boot</description>
++  <properties>
++    <java.version>11</java.version>
++  </properties>
++<!--  <name>TelegramCategoryBot</name>-->
++<!--  <url>http://maven.apache.org</url>-->
++
++<!--  <properties>-->
++<!--    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
++<!--  </properties>-->
++
++  <dependencies>
++    <dependency>
++      <groupId>org.springframework.boot</groupId>
++      <artifactId>spring-boot-starter-web</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>com.github.pengrad</groupId>
++      <artifactId>java-telegram-bot-api</artifactId>
++      <version>5.7.0</version>
++    </dependency>
++    <dependency>
++      <groupId>org.springframework.boot</groupId>
++      <artifactId>spring-boot-starter-data-jpa</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.postgresql</groupId>
++      <artifactId>postgresql</artifactId>
++      <scope>runtime</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.springdoc</groupId>
++      <artifactId>springdoc-openapi-ui</artifactId>
++      <version>1.6.8</version>
++    </dependency>
++    <dependency>
++      <groupId>org.springframework.boot</groupId>
++      <artifactId>spring-boot-starter-test</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.liquibase</groupId>
++      <artifactId>liquibase-core</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.projectlombok</groupId>
++      <artifactId>lombok</artifactId>
++      <optional>true</optional>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.poi</groupId>
++      <artifactId>poi</artifactId>
++      <version>3.12</version>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.poi</groupId>
++      <artifactId>poi-ooxml</artifactId>
++      <version>3.12</version>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <groupId>org.springframework.boot</groupId>
++        <artifactId>spring-boot-maven-plugin</artifactId>
++        <configuration>
++          <excludes>
++            <exclude>
++              <groupId>org.projectlombok</groupId>
++              <artifactId>lombok</artifactId>
++              <!--                                        <version>${lombok.version}</version>-->
++            </exclude>
++          </excludes>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++
++</project>
+Index: README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/README.md b/README.md
+new file mode 100644
+--- /dev/null	
++++ b/README.md	
+@@ -0,0 +1,38 @@
++# CategoryBot
++Telegram-бот для управления деревом категорий
++
++Основные функциональные возможности:
++
++**Команда: /viewTree**
++
++  Дерево должно отображаться в структурированном виде.
++  
++**Команда: /addElement <название элемента>**
++
++  Этот элемент будет корневым, если у него нет родителя.
++  Добавление дочернего элемента к существующему элементу.
++  
++**Команда: /addElement <родительский элемент> <дочерний элемент>**
++
++  Если родительский элемент не существует, выводить соответствующее
++  сообщение.
++  
++**Команда: /removeElement <название элемента>**
++
++  При удалении родительского элемента, все дочерние элементы также
++  должны быть удалены. Если элемент не найден, выводить
++  соответствующее сообщение.
++  
++**Команда: /help**
++
++  Выводит список всех доступных команд и краткое их описание.
++
++**Команда: /download**
++
++  Скачивает Excel документ с деревом категорий, формат на ваше
++  усмотрение
++  
++**Команда: /upload**
++
++  Принимает Excel документ с деревом категорий и сохраняет все
++  элементы в базе данных
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.gitignore b/.gitignore
+--- a/.gitignore	
++++ b/.gitignore	
+@@ -4,6 +4,10 @@
+ !**/src/test/**/target/
+ 
+ ### IntelliJ IDEA ###
++<<<<<<< HEAD
++=======
++/.idea/*
++>>>>>>> ed3dd8f (изменения в проекте)
+ .idea/modules.xml
+ .idea/jarRepositories.xml
+ .idea/compiler.xml
